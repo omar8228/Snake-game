@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snake Game</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+  <script>
+    let snake;
+let food;
+let gridSize = 20;
+
+function setup() {
+  createCanvas(400, 400);
+  frameRate(10);
+  snake = new Snake();
+  placeFood();
+}
+
+function draw() {
+  background(220);
+  
+  snake.update();
+  snake.checkCollision();
+  snake.show();
+  
+  if (snake.eat(food)) {
+    placeFood();
+  }
+  
+  fill(255, 0, 0);
+  rect(food.x, food.y, gridSize, gridSize);
+}
+
+function keyPressed() {
+  if (keyCode === UP_ARROW && snake.ySpeed !== 1) {
+    snake.setDirection(0, -1);
+  } else if (keyCode === DOWN_ARROW && snake.ySpeed !== -1) {
+    snake.setDirection(0, 1);
+  } else if (keyCode === RIGHT_ARROW && snake.xSpeed !== -1) {
+    snake.setDirection(1, 0);
+  } else if (keyCode === LEFT_ARROW && snake.xSpeed !== 1) {
+    snake.setDirection(-1, 0);
+  }
+}
+
+function placeFood() {
+  let cols = floor(width / gridSize);
+  let rows = floor(height / gridSize);
+  food = createVector(floor(random(cols)), floor(random(rows)));
+  food.mult(gridSize);
+}
+
+class Snake {
+  constructor() {
+    this.body = [];
+    this.body[0] = createVector(floor(width / 2), floor(height / 2));
+    this.xSpeed = 0;
+    this.ySpeed = 0;
+  }
+
+  setDirection(x, y) {
+    this.xSpeed = x;
+    this.ySpeed = y;
+  }
+
+  update() {
+    let head = this.body[this.body.length - 1].copy();
+
+    this.body.shift();
+
+    head.x += this.xSpeed * gridSize;
+    head.y += this.ySpeed * gridSize;
+
+    this.body.push(head);
+  }
+
+  grow() {
+    let head = this.body[this.body.length - 1].copy();
+    this.body.push(head);
+  }
+
+  checkCollision() {
+    let head = this.body[this.body.length - 1];
+
+    for (let i = 0; i < this.body.length - 1; i++) {
+      let part = this.body[i];
+      if (head.x === part.x && head.y === part.y) {
+        console.log('Game Over');
+        noLoop();
+      }
+    }
+
+    if (head.x >= width || head.x < 0 || head.y >= height || head.y < 0) {
+      console.log('Game Over');
+      noLoop();
+    }
+  }
+
+  eat(pos) {
+    let head = this.body[this.body.length - 1];
+    if (head.x === pos.x && head.y === pos.y) {
+      this.grow();
+      return true;
+    }
+    return false;
+  }
+
+  show() {
+    for (let i = 0; i < this.body.length; i++) {
+      fill(0);
+      noStroke();
+      rect(this.body[i].x, this.body[i].y, gridSize, gridSize);
+    }
+  }
+}
+// Paste the snake game JavaScript code here
+    // ...
+  </script>
+</body>
+</html>
